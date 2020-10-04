@@ -19,6 +19,7 @@ df["Title"] = df["Title"].fillna("")
 df["Episode number"] = df["Episode number"].fillna(0)
 df["Series number"] = df["Series number"].fillna(0)
 result = df.to_dict(orient='records')
+# print(result)
 
 # for entries in result:
 # 	title = (entries["Title"]).rstrip()
@@ -92,51 +93,53 @@ for keys in date_to_url_dict.keys():
 	for a in soup.findAll("li", {"class": "HeroGroup-item"}):
 		type(a)
 		resa = a.find('h3', {"class": "Hero-titleText"})
-		resb = a.find('h3', {"class": "Hero-subtitle"})
+		resb = a.find('p', {"class": "Hero-subtitle"})
 		resc = a.find('a', {"class": "Hero"})
+		resd = a.find('a', {"class": "Hero Hero--primary"})
 		if resa.text in final_lookup_dict:
 			title1.append(resa.text)
-			print (resa.text)
+			print ("Best of title ", resa.text)
+			
 			print (date_to_url_dict[keys])
-			if (resb != None):
+			if (resb):
 				# print("1")
-				print (resb.text)
+				# print (resb.text)
 				if ((resb.text).startswith('Series')):
+					print ("Best of episode number ", resb.text)
 					# print("2")
-					if((resb.text) in final_lookup_dict[resa.text]):
+					# if((resb.text) in final_lookup_dict[resa.text]):
 						# print("3")
-						subtitle1.append(resb.text)
-						title_episode_dict1[resa.text] = resb.text
-				elif (resb != None and (resb.text).startswith('Series') == False):
+					subtitle1.append(resb.text)
+					title_episode_dict1[resa.text] = resb.text
+				else:
 					# print("2")
+					# print("resb != None and ", resb.text)
 					page_url_new = resc['href']
 					pages_new = requests.get(page_url_new)
 					soup_new = BeautifulSoup(pages_new.text, features="html.parser")
 					if (soup_new.find('h1', {"class": "tvip-hide"})):
 						subtitle_val = soup_new.find('h1', {"class": "tvip-hide"})
-						if subtitle_val.text in final_lookup_dict[resa.text]:
-							subtitle1.append(subtitle_val.text)
-							title_episode_dict1[resa.text] = subtitle_val.text
-				
-
-			else:
-				page_url_new = resc['href']
-				pages_new = requests.get(page_url_new)
-				soup_new = BeautifulSoup(pages_new.text, features="html.parser")
-				# subtitle_val = soup_new.find('h1', {"class": "tvip-hide"})
-				if (soup_new.find('h1', {"class": "tvip-hide"})):
-					subtitle_val = soup_new.find('h1', {"class": "tvip-hide"})
-					if subtitle_val.text in final_lookup_dict[resa.text]:
+						# if subtitle_val.text in final_lookup_dict[resa.text]:
 						subtitle1.append(subtitle_val.text)
 						title_episode_dict1[resa.text] = subtitle_val.text
-
-				# print("3")
+						print ("Best of episode number ", subtitle_val.text)
+			# else:
+			# 	# print("3")
+			# 	# subtitle1.append("Standalone")
+			# 	# title_episode_dict1[resa.text] = "Standalone"
+			# 	page_url_new = resc['href']
+			# 	pages_new = requests.get(page_url_new)
+			# 	soup_new = BeautifulSoup(pages_new.text, features="html.parser")
+			# 	# subtitle_val = soup_new.find('h1', {"class": "tvip-hide"})
+			# 	if (soup_new.find('h1', {"class": "tvip-hide"})):
+			# 		subtitle_val = soup_new.find('h1', {"class": "tvip-hide"})
+			# 		if subtitle_val.text in final_lookup_dict[resa.text]:
+			# 			subtitle1.append(subtitle_val.text)
+			# 			title_episode_dict1[resa.text] = subtitle_val.text
 				
-				# subtitle1.append("Standalone")
-				# title_episode_dict1[resa.text] = "Standalone"
 			
-		
-		date_to_title_dict1[int(keys[0:7])] = title_episode_dict1		# separate into bestof and editors 
+		# print("title episode dict 1 is ", title_episode_dict1)
+	date_to_title_dict1[int(keys)] = title_episode_dict1		# separate into bestof and editors 
 
 	for b in soup.findAll("li", {"class": "BestOfGrid-item"}):
 		type(b)
@@ -144,38 +147,43 @@ for keys in date_to_url_dict.keys():
 		res2 = b.find('span', {"class": "Promo-subTitle"})
 		res3 = b.find('a', {"class": "Promo Card Promo--iplayer"})
 		if (res1 != None and res1.text in final_lookup_dict):
+			print("Editors pick", res1.text)
 			title2.append(res1.text)
 			if (res2 != None):
-				if (res2 != None and (res2.text).startswith('Series') and res2.text in final_lookup_dict[res1.text]):
+				print("Editors pick episode number ", res2.text)
+				if (res2 != None and (res2.text).startswith('Series')):
 					subtitle2.append(res2.text)
 					title_episode_dict2[res1.text] = res2.text
+					# print ("1")
 				
 
-				elif((res2.text).startswith('Series') == False):
+				else:
+					# print ("2")
 					page_new_url_bestof = res3['href']
 					pages_new_bestof = requests.get(page_new_url_bestof)
 					soup_new_bestof = BeautifulSoup(pages_new_bestof.text, features="html.parser")
 					if soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"}):
 						subtitle_bestof_new_page = soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"})
-						if subtitle_bestof_new_page.text in final_lookup_dict[res1.text]:
-							subtitle2.append(subtitle_bestof_new_page.text)
-							title_episode_dict2[res1.text] = subtitle_bestof_new_page.text
-
-			else:
-					
-				# subtitle2.append("Standalone")
-				# title_episode_dict2[res1.text] = "Standalone"
-
-				page_new_url_bestof = res3['href']
-				pages_new_bestof = requests.get(page_new_url_bestof)
-				soup_new_bestof = BeautifulSoup(pages_new_bestof.text, features="html.parser")
-				if soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"}):
-					subtitle_bestof_new_page = soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"})
-					if subtitle_bestof_new_page.text in final_lookup_dict[res1.text]:
+						# if subtitle_bestof_new_page.text in final_lookup_dict[res1.text]:
+							# print (subtitle_bestof_new_page.text)
 						subtitle2.append(subtitle_bestof_new_page.text)
 						title_episode_dict2[res1.text] = subtitle_bestof_new_page.text
-
-			date_to_title_dict2[int(keys[0:7])] = title_episode_dict2
+						print ("Editors pick episode number ", subtitle_bestof_new_page)
+			# else:
+			# 		# print("3")
+			# # 	subtitle2.append("Standalone")
+			# # 	title_episode_dict2[res1.text] = "Standalone"
+			# print ("title episode dict 2 is ", title_episode_dict2)
+		date_to_title_dict2[int(keys)] = title_episode_dict2
+			# print (date_to_title_dict2)
+			# 	page_new_url_bestof = res3['href']
+			# 	pages_new_bestof = requests.get(page_new_url_bestof)
+			# 	soup_new_bestof = BeautifulSoup(pages_new_bestof.text, features="html.parser")
+			# 	if soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"}):
+			# 		subtitle_bestof_new_page = soup_new_bestof.find('span', {"class": "typo typo--skylark play-cta__subtitle"})
+			# 		if subtitle_bestof_new_page.text in final_lookup_dict[res1.text]:
+			# 			subtitle2.append(subtitle_bestof_new_page.text)
+			# 			title_episode_dict2[res1.text] = subtitle_bestof_new_page.text
 	
 
 # dat1 = json.loads(json.dumps(str(date_to_title_dict1)))
