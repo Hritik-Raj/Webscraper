@@ -68,8 +68,8 @@ title1 = []
 title2 = []
 subtitle1 = []
 subtitle2 = []
-title_episode_dict1 = {}
-title_episode_dict2 = {}
+
+
 date_to_url_dict = {}
 date_to_title_dict1 = {}
 date_to_title_dict2 = {}
@@ -88,6 +88,8 @@ del dates_list[0]
 del date_to_url_dict["timestamp"]
 print(final_lookup_dict)
 for keys in date_to_url_dict.keys():
+	title_episode_dict1 = {}
+	title_episode_dict2 = {}
 	page = requests.get(date_to_url_dict[keys])
 	soup = BeautifulSoup(page.text, features="html.parser")
 	for a in soup.findAll("li", {"class": "HeroGroup-item"}):
@@ -175,7 +177,7 @@ for keys in date_to_url_dict.keys():
 					# print("3")
 				subtitle2.append("Standalone")
 				title_episode_dict2[res1.text] = "Standalone"
-			# print ("title episode dict 2 is ", title_episode_dict2)
+			print ("date is ", keys, " title episode dict 2 is ", title_episode_dict2)
 		else:
 			title2.append("")
 			subtitle2.append("")
